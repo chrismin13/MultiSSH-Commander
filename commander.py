@@ -4,6 +4,7 @@
 ##### ===== ENTRY TEXT ===== #####
 FILENAME='entries.json'
 ENTRY_LENGTH = 8
+ARGS = 4
 
 HEIGHT = 400
 WIDTH = 800
@@ -14,23 +15,30 @@ SCALING=1.6
 ##### ===== LOAD / SAVE ===== #####
 
 import json
+import os.path
 
-file = open(FILENAME, 'r')
-entryText=json.load(file)
-file.close()
+entryText=[ [''] * ARGS ] * ENTRY_LENGTH # Make a blank list for the grid
 
 def loadFile():
-    file = open(FILENAME, 'r')
-    entryText=json.load(file)
-    file.close()
-
+    global entryText # Needed to apply the changes
+    if os.path.isfile(FILENAME):
+        file = open(FILENAME, 'r')
+        entryText=json.load(file)
+        file.close()
 
 def saveFile():
+    global entryText
+    for entry in range(ENTRY_LENGTH):
+        group = entryText[entry]
+        group[0] = addressEntry[entry].get()
+        group[1] = userEntry[entry].get()
+        group[2] = passEntry[entry].get()
+        group[3] = cmdEntry[entry].get()
     file = open(FILENAME, 'w')
     json.dump(entryText, file, indent=4, sort_keys=True)
     file.close()
 
-
+loadFile()
 
 ##### ===== COMMAND RUN ===== #####
 
@@ -50,9 +58,7 @@ def stopAll():
 
 ## Must be multithreaded, as we want the commands to run at 
 ## the same time and not freeze up the program in the process.
-running = [] # Keeps tracks of what's running so we can cancel it
-for i in range(0,ENTRY_LENGTH):
-    running.append(None)
+running = [None] * ENTRY_LENGTH # Keeps tracks of what's running so we can cancel it
 
 def closeThread(i):
     if running[i] != None:
